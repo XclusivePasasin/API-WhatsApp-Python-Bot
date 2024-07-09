@@ -31,7 +31,6 @@ def receive_messages():
         changes = entry['changes'][0]
         value = changes['value']
         
-        # Verifica si el campo 'messages' está presente
         if 'messages' not in value:
             return jsonify({"status": "No messages field found"}), 200
         
@@ -41,9 +40,19 @@ def receive_messages():
         contacts = value['contacts'][0]
         name = contacts['profile']['name']
         text = service.get_message(message)
-        print(body)
-        # Active chatbot
-        service.manage_chatbot(text, number, id_message, name)
+        print(f' == INICIO JSON == \n {body} \n == FINAL JSON ==')
+        
+        if text == 'enter_date':
+            service.send_message({
+                "messaging_product": "whatsapp",
+                "to": number,
+                "text": {
+                    "body": "Por favor ingresa la fecha en el formato DD/MM/AAAA."
+                }
+            })
+        else:
+            service.manage_chatbot(text, number, id_message, name)
+        
         return jsonify({"status": "success"}), 200
     except Exception as e:
         logging.error(f"Error in receive_messages: {e}")
